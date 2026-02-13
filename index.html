@@ -1,116 +1,673 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PiggyWink</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#070A12" />
+  <title>PiggyWink — AI experiments & infrastructure</title>
+  <meta name="description" content="PiggyWink — experimental AI systems, infrastructure, and tooling." />
 
-<style>
-  body {
-    margin: 0;
-    font-family: Consolas, monospace;
-    color: #00ffcc;
-    background: linear-gradient(-45deg, #0a0a0a, #0f2027, #203a43, #000000);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+  <!-- Open Graph -->
+  <meta property="og:title" content="PiggyWink" />
+  <meta property="og:description" content="Experimental AI systems, infrastructure, and tooling." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://piggywink.com" />
 
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0A1024;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.085);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.52);
+      --glow: rgba(128,255,212,.55);
+      --glow2: rgba(140,180,255,.45);
+      --good: #39ff9d;
+      --warn: #ffcf5a;
+      --shadow: 0 20px 80px rgba(0,0,0,.55);
+      --radius: 20px;
+      --radius2: 26px;
+      --max: 1120px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
 
-  .container {
-    border: 1px solid rgba(0,255,200,0.3);
-    padding: 30px;
-    width: 90%;
-    max-width: 700px;
-    background: rgba(0,0,0,0.6);
-    box-shadow: 0 0 20px rgba(0,255,200,0.2);
-    backdrop-filter: blur(10px);
-  }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background: radial-gradient(1100px 600px at 20% -10%, rgba(140,180,255,.25), transparent 55%),
+                  radial-gradient(900px 700px at 110% 10%, rgba(128,255,212,.20), transparent 45%),
+                  radial-gradient(800px 700px at 50% 120%, rgba(255,120,180,.10), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-  h1 {
-    font-size: 2.5em;
-    margin: 0;
-    text-shadow: 0 0 10px #00ffcc;
-  }
+    /* Subtle animated noise + moving aurora */
+    .fx {
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:-1;
+    }
+    .fx::before{
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(128,255,212,.18), transparent 45%),
+        radial-gradient(circle at 70% 40%, rgba(140,180,255,.16), transparent 45%),
+        radial-gradient(circle at 55% 80%, rgba(255,120,180,.10), transparent 50%);
+      filter: blur(30px);
+      transform: translate3d(0,0,0);
+      animation: drift 14s ease-in-out infinite alternate;
+      opacity:.85;
+    }
+    .fx::after{
+      content:"";
+      position:absolute; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
+      background-size:260px 260px;
+      mix-blend-mode:overlay;
+      opacity:.10;
+    }
+    @keyframes drift{
+      0%{transform:translate(-2%, -2%) scale(1.02) rotate(-2deg)}
+      100%{transform:translate(2%, 3%) scale(1.06) rotate(2deg)}
+    }
 
-  .status {
-    margin-top: 10px;
-    color: #00ff88;
-  }
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding:22px 18px 90px;}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:14px 14px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.22);
+      backdrop-filter: blur(14px);
+      border-radius:999px;
+      box-shadow: 0 12px 50px rgba(0,0,0,.35);
+      position:sticky; top:14px; z-index:20;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:700;
+      letter-spacing:.2px;
+    }
+    .logo{
+      width:34px; height:34px; border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.85), transparent 45%),
+        radial-gradient(circle at 70% 80%, rgba(0,0,0,.2), transparent 55%),
+        linear-gradient(135deg, rgba(128,255,212,.95), rgba(140,180,255,.95));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.20), 0 10px 30px rgba(128,255,212,.22);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+      transform:rotate(25deg) translateX(-40%);
+      animation: shine 3.2s ease-in-out infinite;
+    }
+    @keyframes shine{
+      0%{transform:rotate(25deg) translateX(-60%)}
+      55%{transform:rotate(25deg) translateX(60%)}
+      100%{transform:rotate(25deg) translateX(60%)}
+    }
 
-  .dot {
-    height: 10px;
-    width: 10px;
-    background-color: #00ff88;
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse 2s infinite;
-    margin-right: 8px;
-  }
+    .navlinks{
+      display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+      font-size:14px; color:var(--muted);
+    }
+    .navlinks a{
+      text-decoration:none;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    }
+    .navlinks a:hover{
+      background:rgba(255,255,255,.06);
+      border-color:rgba(255,255,255,.10);
+      transform: translateY(-1px);
+      color:rgba(255,255,255,.86);
+    }
 
-  @keyframes pulse {
-    0% { opacity: 0.3; }
-    50% { opacity: 1; }
-    100% { opacity: 0.3; }
-  }
+    .ctaRow{display:flex; gap:10px; align-items:center;}
+    .btn{
+      font-size:14px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      text-decoration:none;
+      color:rgba(255,255,255,.88);
+      display:inline-flex; align-items:center; gap:8px;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.085);
+      border-color: rgba(255,255,255,.18);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .btn.primary{
+      border-color: rgba(128,255,212,.35);
+      background: linear-gradient(135deg, rgba(128,255,212,.22), rgba(140,180,255,.18));
+      box-shadow: 0 0 0 1px rgba(128,255,212,.15), 0 14px 50px rgba(128,255,212,.14);
+    }
+    .btn.primary:hover{
+      border-color: rgba(128,255,212,.55);
+      box-shadow: 0 0 0 1px rgba(128,255,212,.22), 0 18px 60px rgba(128,255,212,.18);
+    }
 
-  .terminal {
-    margin-top: 20px;
-    color: #00ffaa;
-  }
+    /* Hero */
+    .hero{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 920px){
+      .hero{grid-template-columns:1fr; }
+    }
 
-  .terminal span {
-    color: #ffffff;
-  }
+    .panel{
+      border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
 
-  .footer {
-    margin-top: 25px;
-    font-size: 0.9em;
-    opacity: 0.7;
-  }
+    .heroMain{
+      padding:28px 26px;
+      min-height: 420px;
+    }
 
-  a {
-    color: #00ffcc;
-    text-decoration: none;
-  }
+    .kicker{
+      display:inline-flex; gap:10px; align-items:center;
+      font-size:12px;
+      color:rgba(255,255,255,.75);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:8px 10px;
+    }
+    .pillDot{
+      width:8px; height:8px; border-radius:999px;
+      background: var(--good);
+      box-shadow: 0 0 0 4px rgba(57,255,157,.10), 0 0 18px rgba(57,255,157,.55);
+      animation:pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1); opacity:.8}
+      50%{transform:scale(1.18); opacity:1}
+    }
 
-  a:hover {
-    text-shadow: 0 0 5px #00ffcc;
-  }
-</style>
+    h1{
+      margin:16px 0 10px;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height:1.02;
+      letter-spacing:-.04em;
+    }
+    .grad{
+      background: linear-gradient(90deg, rgba(128,255,212,1), rgba(140,180,255,1), rgba(255,120,180,1));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow: 0 0 30px rgba(128,255,212,.10);
+    }
+    .sub{
+      max-width: 56ch;
+      color: var(--muted);
+      font-size: 16px;
+      line-height:1.65;
+      margin-top: 10px;
+    }
+
+    .actions{
+      margin-top: 18px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    .mini{
+      display:flex; gap:14px; flex-wrap:wrap;
+      margin-top: 22px;
+      color: var(--muted2);
+      font-size: 13px;
+    }
+    .mini .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+    }
+    .chip b{color:rgba(255,255,255,.85); font-weight:600}
+    .clock{
+      font-family:var(--mono);
+      letter-spacing:.02em;
+      color:rgba(255,255,255,.86);
+    }
+
+    /* Side card */
+    .heroSide{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size:14px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.78);
+    }
+
+    .term{
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height:1.55;
+      color: rgba(220,255,245,.90);
+    }
+    .term .muted{color: rgba(220,255,245,.68)}
+    .term .ok{color: rgba(57,255,157,.92)}
+    .term .warn{color: rgba(255,207,90,.92)}
+    .caret{
+      display:inline-block; width:10px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 920px){
+      .split{grid-template-columns:1fr}
+    }
+
+    .metric{
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .metric .label{
+      font-size:12px; color:var(--muted2); letter-spacing:.06em; text-transform:uppercase;
+    }
+    .metric .value{
+      margin-top:6px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: rgba(255,255,255,.90);
+    }
+
+    /* Sections */
+    section{
+      margin-top: 18px;
+    }
+    .sectionTitle{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
+      margin: 34px 2px 14px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.02em;
+    }
+    .sectionTitle p{
+      margin:0;
+      color:var(--muted2);
+      font-size:13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+
+    .tile{
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    }
+    .tile:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+    }
+    .tile::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(128,255,212,.18), transparent 55%),
+                  radial-gradient(circle at 70% 70%, rgba(140,180,255,.16), transparent 55%);
+      filter: blur(30px);
+      opacity:0;
+      transition: opacity .25s ease;
+      pointer-events:none;
+    }
+    .tile:hover::after{opacity:.55}
+
+    .tile .top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-bottom:10px;
+    }
+    .badge{
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.78);
+      background: rgba(0,0,0,.14);
+      white-space:nowrap;
+    }
+    .tile h3{
+      margin: 0 0 6px;
+      font-size: 16px;
+      letter-spacing:.01em;
+    }
+    .tile p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .footer{
+      margin-top: 44px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      color: var(--muted2);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 18px;
+    }
+    @media (max-width: 700px){
+      .footer{flex-direction:column; align-items:flex-start}
+    }
+
+    /* Reveal animations */
+    .reveal{opacity:0; transform:translateY(10px); transition: opacity .5s ease, transform .5s ease;}
+    .reveal.on{opacity:1; transform:none;}
+
+    /* Small helper icons */
+    .ic{width:16px;height:16px; display:inline-block}
+    .ic svg{width:16px;height:16px; display:block}
+  </style>
 </head>
 
 <body>
+  <div class="fx"></div>
 
-<div class="container">
+  <div class="wrap">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div style="font-size:14px; line-height:1; font-weight:750;">PiggyWink</div>
+          <div style="font-size:12px; color:var(--muted2); line-height:1.2; margin-top:3px;">AI experiments • infrastructure • tooling</div>
+        </div>
+      </div>
 
-  <h1>PiggyWink</h1>
+      <div class="navlinks" aria-label="site">
+        <a href="#projects">Projects</a>
+        <a href="#stack">Stack</a>
+        <a href="#contact">Contact</a>
+      </div>
 
-  <div class="status">
-    <span class="dot"></span>system status: ONLINE
+      <div class="ctaRow">
+        <a class="btn" href="mailto:mail@piggywink.com" title="Email">
+          <span class="ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4V6Z" stroke="rgba(255,255,255,.8)" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="rgba(255,255,255,.8)" stroke-width="1.7"/></svg>
+          </span>
+          mail@piggywink.com
+        </a>
+        <a class="btn primary" href="#projects" title="Jump to projects">
+          <span class="ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14" stroke="rgba(255,255,255,.9)" stroke-width="1.7"/><path d="m18 13-6 6-6-6" stroke="rgba(255,255,255,.9)" stroke-width="1.7"/></svg>
+          </span>
+          Explore
+        </a>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="panel heroMain reveal">
+        <div class="kicker">
+          <span class="pillDot" aria-hidden="true"></span>
+          SYSTEM ONLINE · BUILDING IN PUBLIC
+        </div>
+
+        <h1>
+          Build <span class="grad">weirdly capable</span><br />
+          AI stuff.
+        </h1>
+
+        <div class="sub">
+          PiggyWink is a tiny lab for speech + infrastructure experiments: fast prototypes, clean pipelines,
+          and unapologetically practical tooling.
+        </div>
+
+        <div class="actions">
+          <a class="btn primary" href="#contact">Contact</a>
+          <a class="btn" href="#stack">What’s running</a>
+          <a class="btn" href="#projects">Current work</a>
+        </div>
+
+        <div class="mini">
+          <div class="chip"><b>Status</b> <span id="statusText">Online</span></div>
+          <div class="chip"><b>UTC</b> <span class="clock" id="utcClock">--:--:--</span></div>
+          <div class="chip"><b>Domain</b> piggywink.com</div>
+        </div>
+      </div>
+
+      <div class="panel heroSide reveal">
+        <div class="card">
+          <h3>Terminal</h3>
+          <div class="term" id="term">
+            <div><span class="muted">$</span> boot piggywink</div>
+            <div><span class="ok">✔</span> dns: github-pages</div>
+            <div><span class="ok">✔</span> tls: enabled</div>
+            <div><span class="warn">•</span> indexing: pending</div>
+            <div><span class="muted">$</span> <span id="typed"></span><span class="caret">▌</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Live metrics</h3>
+          <div class="split">
+            <div class="metric">
+              <div class="label">deploy target</div>
+              <div class="value">GitHub Pages</div>
+            </div>
+            <div class="metric">
+              <div class="label">transport</div>
+              <div class="value">HTTPS</div>
+            </div>
+            <div class="metric">
+              <div class="label">email</div>
+              <div class="value">mail@piggywink.com</div>
+            </div>
+            <div class="metric">
+              <div class="label">mode</div>
+              <div class="value">Experimental</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="contact">
+          <h3>Contact</h3>
+          <div class="term">
+            <div>→ <a href="mailto:mail@piggywink.com">mail@piggywink.com</a></div>
+            <div class="muted" style="margin-top:8px;">I reply fastest to concrete problems + timelines.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="projects" class="reveal">
+      <div class="sectionTitle">
+        <h2>Projects</h2>
+        <p>Small, sharp things that ship.</p>
+      </div>
+
+      <div class="grid">
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Speech</div>
+            <div class="badge">Whisper / wav2vec2</div>
+          </div>
+          <h3>Children’s ASR stack</h3>
+          <p>Fine-tuned ASR with fast batching, robust audio I/O, and clean submission pipelines.</p>
+        </div>
+
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Phonetics</div>
+            <div class="badge">IPA mapping</div>
+          </div>
+          <h3>Phonetic track tooling</h3>
+          <p>CTC phoneme decoding + normalization into a strict competition IPA character set.</p>
+        </div>
+
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Infra</div>
+            <div class="badge">GPU-ready</div>
+          </div>
+          <h3>GPU scripts that behave</h3>
+          <p>Battle-tested inference scripts with sane logging, predictable outputs, and reproducible runs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="reveal">
+      <div class="sectionTitle">
+        <h2>Stack</h2>
+        <p>Simple, fast, and boring where it matters.</p>
+      </div>
+
+      <div class="grid">
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Runtime</div>
+            <div class="badge">Python</div>
+          </div>
+          <h3>PyTorch + Transformers</h3>
+          <p>fp16/bf16 inference, sensible batching, optional compile, and “don’t break in prod” defaults.</p>
+        </div>
+
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Data</div>
+            <div class="badge">Audio</div>
+          </div>
+          <h3>SoundFile-first I/O</h3>
+          <p>Fast decode, safe mono-mix, and resampling fallback paths when the environment is weird.</p>
+        </div>
+
+        <div class="tile">
+          <div class="top">
+            <div class="badge">Web</div>
+            <div class="badge">Zero deps</div>
+          </div>
+          <h3>Static + clean</h3>
+          <p>Just HTML/CSS/JS. Loads instantly and still looks like you meant it.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>© <span id="year"></span> PiggyWink. Built on GitHub Pages.</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">Back to top</a>
+        <a class="btn" href="mailto:mail@piggywink.com">Email</a>
+      </div>
+    </div>
   </div>
 
-  <div class="terminal">
-    <p>> initializing infrastructure node...</p>
-    <p>> loading experimental modules...</p>
-    <p>> network: <span>active</span></p>
-    <p>> domain: <span>piggywink.com</span></p>
-    <p>> contact: <span>mail@piggywink.com</span></p>
-  </div>
+  <script>
+    // UTC clock
+    const utcEl = document.getElementById("utcClock");
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tickUTC(){
+      const d = new Date();
+      utcEl.textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+    }
+    tickUTC(); setInterval(tickUTC, 1000);
 
-  <div class="footer">
-    experimental AI systems · infrastructure · tooling
-  </div>
+    // Footer year
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-</div>
+    // Terminal typing effect
+    const typedEl = document.getElementById("typed");
+    const lines = [
+      "status --all",
+      "gpu probe --safe",
+      "run asr_pipeline --fast",
+      "ship it"
+    ];
+    let li = 0, ci = 0, deleting = false;
 
+    function typeLoop(){
+      const current = lines[li];
+      if(!deleting){
+        typedEl.textContent = current.slice(0, ci++);
+        if(ci > current.length + 18){ deleting = true; }
+      } else {
+        typedEl.textContent = current.slice(0, ci--);
+        if(ci <= 0){
+          deleting = false;
+          li = (li + 1) % lines.length;
+          ci = 0;
+        }
+      }
+      setTimeout(typeLoop, deleting ? 28 : 34);
+    }
+    typeLoop();
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll(".reveal");
+    const obs = new IntersectionObserver((entries)=>{
+      for(const e of entries){
+        if(e.isIntersecting) e.target.classList.add("on");
+      }
+    }, {threshold: 0.12});
+    reveals.forEach(r => obs.observe(r));
+
+    // If you ever want to toggle status from JS later:
+    // document.getElementById("statusText").textContent = "Online";
+  </script>
 </body>
 </html>
