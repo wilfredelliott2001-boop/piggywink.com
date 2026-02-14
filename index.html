@@ -3,671 +3,1144 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#070A12" />
+  <meta name="theme-color" content="#050508" />
   <title>PiggyWink — AI experiments & infrastructure</title>
   <meta name="description" content="PiggyWink — experimental AI systems, infrastructure, and tooling." />
-
-  <!-- Open Graph -->
   <meta property="og:title" content="PiggyWink" />
   <meta property="og:description" content="Experimental AI systems, infrastructure, and tooling." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://piggywink.com" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
   <style>
-    :root{
-      --bg0:#070A12;
-      --bg1:#0A1024;
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.085);
-      --stroke: rgba(255,255,255,.10);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --muted2: rgba(255,255,255,.52);
-      --glow: rgba(128,255,212,.55);
-      --glow2: rgba(140,180,255,.45);
-      --good: #39ff9d;
-      --warn: #ffcf5a;
-      --shadow: 0 20px 80px rgba(0,0,0,.55);
-      --radius: 20px;
-      --radius2: 26px;
-      --max: 1120px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    :root {
+      --bg: #050508;
+      --bg2: #0a0a10;
+      --surface: rgba(255,255,255,.04);
+      --surface2: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.14);
+      --text: #e8e8ed;
+      --text2: rgba(255,255,255,.55);
+      --text3: rgba(255,255,255,.35);
+      --accent: #00ffaa;
+      --accent2: #00cc88;
+      --accent-dim: rgba(0,255,170,.08);
+      --accent-glow: rgba(0,255,170,.25);
+      --pink: #ff3d8e;
+      --blue: #3d8eff;
+      --display: 'Syne', sans-serif;
+      --body: 'Plus Jakarta Sans', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
     }
 
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background: radial-gradient(1100px 600px at 20% -10%, rgba(140,180,255,.25), transparent 55%),
-                  radial-gradient(900px 700px at 110% 10%, rgba(128,255,212,.20), transparent 45%),
-                  radial-gradient(800px 700px at 50% 120%, rgba(255,120,180,.10), transparent 55%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--body);
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+      cursor: default;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle animated noise + moving aurora */
-    .fx {
-      position:fixed; inset:0;
-      pointer-events:none;
-      z-index:-1;
-    }
-    .fx::before{
-      content:"";
-      position:absolute; inset:-40%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(128,255,212,.18), transparent 45%),
-        radial-gradient(circle at 70% 40%, rgba(140,180,255,.16), transparent 45%),
-        radial-gradient(circle at 55% 80%, rgba(255,120,180,.10), transparent 50%);
-      filter: blur(30px);
-      transform: translate3d(0,0,0);
-      animation: drift 14s ease-in-out infinite alternate;
-      opacity:.85;
-    }
-    .fx::after{
-      content:"";
-      position:absolute; inset:0;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
-      background-size:260px 260px;
-      mix-blend-mode:overlay;
-      opacity:.10;
-    }
-    @keyframes drift{
-      0%{transform:translate(-2%, -2%) scale(1.02) rotate(-2deg)}
-      100%{transform:translate(2%, 3%) scale(1.06) rotate(2deg)}
+    ::selection {
+      background: var(--accent);
+      color: var(--bg);
     }
 
-    a{color:inherit}
-    .wrap{max-width:var(--max); margin:0 auto; padding:22px 18px 90px;}
-    .nav{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:16px; padding:14px 14px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(0,0,0,.22);
-      backdrop-filter: blur(14px);
-      border-radius:999px;
-      box-shadow: 0 12px 50px rgba(0,0,0,.35);
-      position:sticky; top:14px; z-index:20;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; font-weight:700;
-      letter-spacing:.2px;
-    }
-    .logo{
-      width:34px; height:34px; border-radius:12px;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(255,255,255,.85), transparent 45%),
-        radial-gradient(circle at 70% 80%, rgba(0,0,0,.2), transparent 55%),
-        linear-gradient(135deg, rgba(128,255,212,.95), rgba(140,180,255,.95));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.20), 0 10px 30px rgba(128,255,212,.22);
-      position:relative;
-      overflow:hidden;
-    }
-    .logo::after{
-      content:"";
-      position:absolute; inset:-40%;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-      transform:rotate(25deg) translateX(-40%);
-      animation: shine 3.2s ease-in-out infinite;
-    }
-    @keyframes shine{
-      0%{transform:rotate(25deg) translateX(-60%)}
-      55%{transform:rotate(25deg) translateX(60%)}
-      100%{transform:rotate(25deg) translateX(60%)}
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── CUSTOM CURSOR GLOW ─── */
+    .cursor-glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,170,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+      transition: opacity .3s;
+      will-change: left, top;
     }
 
-    .navlinks{
-      display:flex; gap:14px; align-items:center; flex-wrap:wrap;
-      font-size:14px; color:var(--muted);
-    }
-    .navlinks a{
-      text-decoration:none;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid transparent;
-      transition: transform .15s ease, background .2s ease, border-color .2s ease;
-    }
-    .navlinks a:hover{
-      background:rgba(255,255,255,.06);
-      border-color:rgba(255,255,255,.10);
-      transform: translateY(-1px);
-      color:rgba(255,255,255,.86);
+    /* ─── DOT GRID BACKGROUND ─── */
+    .dot-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 100%);
+      pointer-events: none;
     }
 
-    .ctaRow{display:flex; gap:10px; align-items:center;}
-    .btn{
-      font-size:14px;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      backdrop-filter: blur(10px);
-      text-decoration:none;
-      color:rgba(255,255,255,.88);
-      display:inline-flex; align-items:center; gap:8px;
-      transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
-      white-space:nowrap;
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.085);
-      border-color: rgba(255,255,255,.18);
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    .btn.primary{
-      border-color: rgba(128,255,212,.35);
-      background: linear-gradient(135deg, rgba(128,255,212,.22), rgba(140,180,255,.18));
-      box-shadow: 0 0 0 1px rgba(128,255,212,.15), 0 14px 50px rgba(128,255,212,.14);
-    }
-    .btn.primary:hover{
-      border-color: rgba(128,255,212,.55);
-      box-shadow: 0 0 0 1px rgba(128,255,212,.22), 0 18px 60px rgba(128,255,212,.18);
+    /* ─── NOISE TEXTURE ─── */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
     }
 
-    /* Hero */
-    .hero{
-      margin-top:22px;
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    @media (max-width: 920px){
-      .hero{grid-template-columns:1fr; }
+    /* ─── LAYOUT ─── */
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
-    .panel{
-      border-radius: var(--radius2);
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
+    /* ─── NAV ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      transition: background .3s, backdrop-filter .3s;
     }
-
-    .heroMain{
-      padding:28px 26px;
-      min-height: 420px;
+    .nav.scrolled {
+      background: rgba(5,5,8,.8);
+      backdrop-filter: blur(20px) saturate(1.4);
     }
-
-    .kicker{
-      display:inline-flex; gap:10px; align-items:center;
-      font-size:12px;
-      color:rgba(255,255,255,.75);
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:999px;
-      padding:8px 10px;
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
     }
-    .pillDot{
-      width:8px; height:8px; border-radius:999px;
-      background: var(--good);
-      box-shadow: 0 0 0 4px rgba(57,255,157,.10), 0 0 18px rgba(57,255,157,.55);
-      animation:pulse 2.2s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1); opacity:.8}
-      50%{transform:scale(1.18); opacity:1}
-    }
-
-    h1{
-      margin:16px 0 10px;
-      font-size: clamp(36px, 5vw, 64px);
-      line-height:1.02;
-      letter-spacing:-.04em;
-    }
-    .grad{
-      background: linear-gradient(90deg, rgba(128,255,212,1), rgba(140,180,255,1), rgba(255,120,180,1));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      text-shadow: 0 0 30px rgba(128,255,212,.10);
-    }
-    .sub{
-      max-width: 56ch;
-      color: var(--muted);
-      font-size: 16px;
-      line-height:1.65;
-      margin-top: 10px;
-    }
-
-    .actions{
-      margin-top: 18px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
-
-    .mini{
-      display:flex; gap:14px; flex-wrap:wrap;
-      margin-top: 22px;
-      color: var(--muted2);
-      font-size: 13px;
-    }
-    .mini .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:9px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.12);
-    }
-    .chip b{color:rgba(255,255,255,.85); font-weight:600}
-    .clock{
-      font-family:var(--mono);
-      letter-spacing:.02em;
-      color:rgba(255,255,255,.86);
-    }
-
-    /* Side card */
-    .heroSide{
-      padding:18px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-    .card{
-      border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.14);
-      backdrop-filter: blur(10px);
-      padding: 16px;
-    }
-    .card h3{
-      margin:0 0 10px;
-      font-size:14px;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.78);
-    }
-
-    .term{
-      font-family: var(--mono);
-      font-size: 13px;
-      line-height:1.55;
-      color: rgba(220,255,245,.90);
-    }
-    .term .muted{color: rgba(220,255,245,.68)}
-    .term .ok{color: rgba(57,255,157,.92)}
-    .term .warn{color: rgba(255,207,90,.92)}
-    .caret{
-      display:inline-block; width:10px;
-      animation: blink 1s steps(1) infinite;
-    }
-    @keyframes blink{50%{opacity:0}}
-
-    .split{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 920px){
-      .split{grid-template-columns:1fr}
-    }
-
-    .metric{
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-    }
-    .metric .label{
-      font-size:12px; color:var(--muted2); letter-spacing:.06em; text-transform:uppercase;
-    }
-    .metric .value{
-      margin-top:6px;
-      font-family: var(--mono);
-      font-size: 14px;
-      color: rgba(255,255,255,.90);
-    }
-
-    /* Sections */
-    section{
-      margin-top: 18px;
-    }
-    .sectionTitle{
-      display:flex; align-items:flex-end; justify-content:space-between; gap:10px;
-      margin: 34px 2px 14px;
-    }
-    .sectionTitle h2{
-      margin:0;
-      font-size: 18px;
-      letter-spacing:.02em;
-    }
-    .sectionTitle p{
-      margin:0;
-      color:var(--muted2);
-      font-size:13px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
+    .nav-brand {
+      display: flex;
+      align-items: center;
       gap: 14px;
     }
-    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
-
-    .tile{
-      border-radius: var(--radius);
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      padding: 16px;
-      position:relative;
-      overflow:hidden;
-      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    .nav-logo {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      box-shadow: 0 0 20px var(--accent-glow);
     }
-    .tile:hover{
-      transform: translateY(-2px);
-      border-color: rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
+    .nav-logo::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 8px;
+      background: var(--bg);
     }
-    .tile::after{
-      content:"";
-      position:absolute; inset:-40%;
-      background: radial-gradient(circle at 30% 30%, rgba(128,255,212,.18), transparent 55%),
-                  radial-gradient(circle at 70% 70%, rgba(140,180,255,.16), transparent 55%);
-      filter: blur(30px);
-      opacity:0;
-      transition: opacity .25s ease;
-      pointer-events:none;
+    .nav-logo::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      opacity: .9;
     }
-    .tile:hover::after{opacity:.55}
-
-    .tile .top{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin-bottom:10px;
+    .nav-name {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -.02em;
     }
-    .badge{
-      font-size:11px;
-      padding:6px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.78);
-      background: rgba(0,0,0,.14);
-      white-space:nowrap;
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .tile h3{
-      margin: 0 0 6px;
-      font-size: 16px;
-      letter-spacing:.01em;
-    }
-    .tile p{
-      margin:0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .footer{
-      margin-top: 44px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      color: var(--muted2);
+    .nav-links a {
       font-size: 13px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding-top: 18px;
+      font-weight: 500;
+      color: var(--text2);
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: color .2s, background .2s;
+      letter-spacing: .01em;
     }
-    @media (max-width: 700px){
-      .footer{flex-direction:column; align-items:flex-start}
+    .nav-links a:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,255,170,.3);
+      background: rgba(0,255,170,.06);
+      color: var(--accent);
+      transition: all .2s;
+      letter-spacing: .03em;
+    }
+    .nav-cta:hover {
+      background: rgba(0,255,170,.12);
+      border-color: rgba(0,255,170,.5);
+      box-shadow: 0 0 30px rgba(0,255,170,.1);
     }
 
-    /* Reveal animations */
-    .reveal{opacity:0; transform:translateY(10px); transition: opacity .5s ease, transform .5s ease;}
-    .reveal.on{opacity:1; transform:none;}
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+    }
 
-    /* Small helper icons */
-    .ic{width:16px;height:16px; display:inline-block}
-    .ic svg{width:16px;height:16px; display:block}
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      position: relative;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 60px;
+      align-items: center;
+      width: 100%;
+    }
+    @media (max-width: 960px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    .hero-content { position: relative; }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp .6s ease forwards;
+    }
+    .hero-tag .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent), 0 0 20px var(--accent-glow);
+      animation: breathe 2s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: .6; transform: scale(.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .hero h1 {
+      font-family: var(--display);
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 800;
+      line-height: .95;
+      letter-spacing: -.04em;
+      opacity: 0;
+      animation: fadeUp .6s ease .1s forwards;
+    }
+    .hero h1 .line { display: block; overflow: hidden; }
+    .hero h1 .em {
+      font-style: italic;
+      background: linear-gradient(90deg, var(--accent), var(--blue), var(--pink));
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 4s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero-sub {
+      margin-top: 28px;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text2);
+      max-width: 48ch;
+      opacity: 0;
+      animation: fadeUp .6s ease .2s forwards;
+    }
+
+    .hero-actions {
+      margin-top: 36px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp .6s ease .3s forwards;
+    }
+    .btn-primary {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .01em;
+      padding: 14px 32px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow), 0 0 60px rgba(0,255,170,.15);
+    }
+    .btn-ghost {
+      font-family: var(--body);
+      font-weight: 500;
+      font-size: 14px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-ghost:hover {
+      border-color: var(--text2);
+      background: var(--surface);
+      transform: translateY(-2px);
+    }
+
+    .hero-meta {
+      margin-top: 48px;
+      display: flex;
+      gap: 32px;
+      opacity: 0;
+      animation: fadeUp .6s ease .4s forwards;
+    }
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .hero-meta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+    .hero-meta-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    /* ─── HERO TERMINAL ─── */
+    .terminal {
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeUp .6s ease .25s forwards;
+      position: relative;
+    }
+    .terminal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(0,255,170,.15), transparent 50%, rgba(61,142,255,.1));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .term-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+    }
+    .term-dot:first-child { background: #ff5f57; }
+    .term-dot:nth-child(2) { background: #febc2e; }
+    .term-dot:nth-child(3) { background: #28c840; }
+    .term-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: 8px;
+    }
+    .term-body {
+      padding: 20px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 2;
+      color: rgba(220,255,240,.75);
+    }
+    .term-body .prompt { color: var(--accent); }
+    .term-body .ok { color: #28c840; }
+    .term-body .warn { color: #febc2e; }
+    .term-body .dim { color: rgba(255,255,255,.3); }
+    .term-body .typing-line { display: flex; align-items: center; }
+    .term-cursor {
+      display: inline-block;
+      width: 8px; height: 16px;
+      background: var(--accent);
+      margin-left: 2px;
+      animation: cursorBlink 1s step-end infinite;
+      vertical-align: middle;
+    }
+    @keyframes cursorBlink { 50% { opacity: 0; } }
+
+    .term-stats {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .term-stat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+    .term-stat-val {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      margin-top: -1px;
+    }
+    .marquee {
+      display: flex;
+      gap: 48px;
+      animation: scroll 20s linear infinite;
+      width: max-content;
+    }
+    .marquee span {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .marquee .sep {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .5;
+      flex-shrink: 0;
+    }
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ─── SECTION COMMON ─── */
+    .section {
+      padding: 100px 0;
+      position: relative;
+      z-index: 2;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+    }
+    .section-desc {
+      margin-top: 16px;
+      font-size: 16px;
+      color: var(--text2);
+      max-width: 50ch;
+      line-height: 1.65;
+    }
+    .section-header {
+      margin-bottom: 56px;
+    }
+
+    /* ─── PROJECTS ─── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
+    .project-card {
+      background: var(--bg2);
+      padding: 40px 32px;
+      position: relative;
+      transition: background .3s;
+      cursor: default;
+    }
+    .project-card:hover {
+      background: rgba(255,255,255,.03);
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .project-card:hover::before { opacity: 1; }
+
+    .project-num {
+      font-family: var(--display);
+      font-size: 64px;
+      font-weight: 800;
+      color: rgba(255,255,255,.04);
+      line-height: 1;
+      letter-spacing: -.04em;
+      margin-bottom: 24px;
+    }
+    .project-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .project-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--text3);
+      transition: border-color .2s, color .2s;
+    }
+    .project-card:hover .project-tag {
+      border-color: var(--border2);
+      color: var(--text2);
+    }
+    .project-card h3 {
+      font-family: var(--display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 12px;
+    }
+    .project-card p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text2);
+    }
+    .project-arrow {
+      margin-top: 24px;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text3);
+      transition: all .2s;
+    }
+    .project-card:hover .project-arrow {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    /* ─── STACK ─── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .stack-grid { grid-template-columns: 1fr; }
+    }
+
+    .stack-card {
+      padding: 32px 28px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .stack-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .stack-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stack-card h3 {
+      font-family: var(--display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin-bottom: 10px;
+    }
+    .stack-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text2);
+    }
+    .stack-tags {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stack-tag-item {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.04);
+      color: var(--text3);
+    }
+
+    /* ─── CONTACT ─── */
+    .contact-section {
+      padding: 100px 0 60px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .contact-section .section-label,
+    .contact-section .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .contact-title {
+      font-family: var(--display);
+      font-size: clamp(40px, 6vw, 80px);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      line-height: .95;
+      margin-top: 16px;
+    }
+    .contact-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 40px;
+      font-family: var(--mono);
+      font-size: 16px;
+      padding: 18px 36px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,255,170,.25);
+      background: rgba(0,255,170,.04);
+      color: var(--accent);
+      transition: all .2s;
+    }
+    .contact-email:hover {
+      background: rgba(0,255,170,.1);
+      border-color: rgba(0,255,170,.45);
+      box-shadow: 0 0 40px rgba(0,255,170,.1);
+      transform: translateY(-2px);
+    }
+    .contact-note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      position: relative;
+      z-index: 2;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text3);
+    }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-links a {
+      color: var(--text3);
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    @media (max-width: 600px) {
+      .footer-inner { flex-direction: column; gap: 16px; }
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-stagger > * {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal-stagger.visible > * {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; }
+    .reveal-stagger.visible > *:nth-child(2) { transition-delay: .1s; }
+    .reveal-stagger.visible > *:nth-child(3) { transition-delay: .2s; }
+
+    /* ─── LARGE GRADIENT ORB ─── */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      top: -100px; right: -100px;
+      background: radial-gradient(circle, rgba(0,255,170,.12), transparent 70%);
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      bottom: 200px; left: -150px;
+      background: radial-gradient(circle, rgba(61,142,255,.08), transparent 70%);
+    }
+    .orb-3 {
+      width: 600px; height: 600px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,61,142,.05), transparent 70%);
+    }
   </style>
 </head>
 
 <body>
-  <div class="fx"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="dot-grid"></div>
+  <div class="noise"></div>
 
-  <div class="wrap">
-    <div class="nav">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <div style="font-size:14px; line-height:1; font-weight:750;">PiggyWink</div>
-          <div style="font-size:12px; color:var(--muted2); line-height:1.2; margin-top:3px;">AI experiments • infrastructure • tooling</div>
-        </div>
-      </div>
-
-      <div class="navlinks" aria-label="site">
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">
+        <div class="nav-logo"></div>
+        <span class="nav-name">PiggyWink</span>
+      </a>
+      <div class="nav-links">
         <a href="#projects">Projects</a>
         <a href="#stack">Stack</a>
         <a href="#contact">Contact</a>
       </div>
+      <a href="mailto:mail@piggywink.com" class="nav-cta">mail@piggywink.com</a>
+    </div>
+  </nav>
 
-      <div class="ctaRow">
-        <a class="btn" href="mailto:mail@piggywink.com" title="Email">
-          <span class="ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4V6Z" stroke="rgba(255,255,255,.8)" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="rgba(255,255,255,.8)" stroke-width="1.7"/></svg>
-          </span>
-          mail@piggywink.com
-        </a>
-        <a class="btn primary" href="#projects" title="Jump to projects">
-          <span class="ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14" stroke="rgba(255,255,255,.9)" stroke-width="1.7"/><path d="m18 13-6 6-6-6" stroke="rgba(255,255,255,.9)" stroke-width="1.7"/></svg>
-          </span>
-          Explore
-        </a>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="hero-tag">
+            <span class="dot"></span>
+            System online · Building in public
+          </div>
+
+          <h1>
+            <span class="line">Build</span>
+            <span class="line"><span class="em">weirdly</span></span>
+            <span class="line"><span class="em">capable</span></span>
+            <span class="line">AI stuff.</span>
+          </h1>
+
+          <p class="hero-sub">
+            A tiny lab for speech &amp; infrastructure experiments.
+            Fast prototypes, clean pipelines, unapologetically practical tooling.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#contact" class="btn-primary">
+              Get in touch
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#projects" class="btn-ghost">See the work</a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">Status</span>
+              <span class="hero-meta-value" style="color: var(--accent);">● Online</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">UTC</span>
+              <span class="hero-meta-value" id="utcClock">--:--:--</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">Domain</span>
+              <span class="hero-meta-value">piggywink.com</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot"></div>
+            <div class="term-dot"></div>
+            <div class="term-dot"></div>
+            <span class="term-title">piggywink — zsh</span>
+          </div>
+          <div class="term-body">
+            <div><span class="prompt">→</span> boot piggywink</div>
+            <div><span class="ok">✓</span> dns resolved · github-pages</div>
+            <div><span class="ok">✓</span> tls · ed25519</div>
+            <div><span class="ok">✓</span> pipeline warm</div>
+            <div><span class="warn">◆</span> indexing · pending</div>
+            <div class="dim">───────────────────────────</div>
+            <div class="typing-line"><span class="prompt">→</span>&nbsp;<span id="typed"></span><span class="term-cursor"></span></div>
+          </div>
+          <div class="term-stats">
+            <div>
+              <div class="term-stat-label">Deploy</div>
+              <div class="term-stat-val">GitHub Pages</div>
+            </div>
+            <div>
+              <div class="term-stat-label">Transport</div>
+              <div class="term-stat-val">HTTPS / TLS 1.3</div>
+            </div>
+            <div>
+              <div class="term-stat-label">Mode</div>
+              <div class="term-stat-val" style="color: var(--accent);">Experimental</div>
+            </div>
+            <div>
+              <div class="term-stat-label">Uptime</div>
+              <div class="term-stat-val" id="uptime">00:00:00</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="hero">
-      <div class="panel heroMain reveal">
-        <div class="kicker">
-          <span class="pillDot" aria-hidden="true"></span>
-          SYSTEM ONLINE · BUILDING IN PUBLIC
-        </div>
-
-        <h1>
-          Build <span class="grad">weirdly capable</span><br />
-          AI stuff.
-        </h1>
-
-        <div class="sub">
-          PiggyWink is a tiny lab for speech + infrastructure experiments: fast prototypes, clean pipelines,
-          and unapologetically practical tooling.
-        </div>
-
-        <div class="actions">
-          <a class="btn primary" href="#contact">Contact</a>
-          <a class="btn" href="#stack">What’s running</a>
-          <a class="btn" href="#projects">Current work</a>
-        </div>
-
-        <div class="mini">
-          <div class="chip"><b>Status</b> <span id="statusText">Online</span></div>
-          <div class="chip"><b>UTC</b> <span class="clock" id="utcClock">--:--:--</span></div>
-          <div class="chip"><b>Domain</b> piggywink.com</div>
-        </div>
-      </div>
-
-      <div class="panel heroSide reveal">
-        <div class="card">
-          <h3>Terminal</h3>
-          <div class="term" id="term">
-            <div><span class="muted">$</span> boot piggywink</div>
-            <div><span class="ok">✔</span> dns: github-pages</div>
-            <div><span class="ok">✔</span> tls: enabled</div>
-            <div><span class="warn">•</span> indexing: pending</div>
-            <div><span class="muted">$</span> <span id="typed"></span><span class="caret">▌</span></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Live metrics</h3>
-          <div class="split">
-            <div class="metric">
-              <div class="label">deploy target</div>
-              <div class="value">GitHub Pages</div>
-            </div>
-            <div class="metric">
-              <div class="label">transport</div>
-              <div class="value">HTTPS</div>
-            </div>
-            <div class="metric">
-              <div class="label">email</div>
-              <div class="value">mail@piggywink.com</div>
-            </div>
-            <div class="metric">
-              <div class="label">mode</div>
-              <div class="value">Experimental</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" id="contact">
-          <h3>Contact</h3>
-          <div class="term">
-            <div>→ <a href="mailto:mail@piggywink.com">mail@piggywink.com</a></div>
-            <div class="muted" style="margin-top:8px;">I reply fastest to concrete problems + timelines.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <section id="projects" class="reveal">
-      <div class="sectionTitle">
-        <h2>Projects</h2>
-        <p>Small, sharp things that ship.</p>
-      </div>
-
-      <div class="grid">
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Speech</div>
-            <div class="badge">Whisper / wav2vec2</div>
-          </div>
-          <h3>Children’s ASR stack</h3>
-          <p>Fine-tuned ASR with fast batching, robust audio I/O, and clean submission pipelines.</p>
-        </div>
-
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Phonetics</div>
-            <div class="badge">IPA mapping</div>
-          </div>
-          <h3>Phonetic track tooling</h3>
-          <p>CTC phoneme decoding + normalization into a strict competition IPA character set.</p>
-        </div>
-
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Infra</div>
-            <div class="badge">GPU-ready</div>
-          </div>
-          <h3>GPU scripts that behave</h3>
-          <p>Battle-tested inference scripts with sane logging, predictable outputs, and reproducible runs.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="stack" class="reveal">
-      <div class="sectionTitle">
-        <h2>Stack</h2>
-        <p>Simple, fast, and boring where it matters.</p>
-      </div>
-
-      <div class="grid">
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Runtime</div>
-            <div class="badge">Python</div>
-          </div>
-          <h3>PyTorch + Transformers</h3>
-          <p>fp16/bf16 inference, sensible batching, optional compile, and “don’t break in prod” defaults.</p>
-        </div>
-
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Data</div>
-            <div class="badge">Audio</div>
-          </div>
-          <h3>SoundFile-first I/O</h3>
-          <p>Fast decode, safe mono-mix, and resampling fallback paths when the environment is weird.</p>
-        </div>
-
-        <div class="tile">
-          <div class="top">
-            <div class="badge">Web</div>
-            <div class="badge">Zero deps</div>
-          </div>
-          <h3>Static + clean</h3>
-          <p>Just HTML/CSS/JS. Loads instantly and still looks like you meant it.</p>
-        </div>
-      </div>
-    </section>
-
-    <div class="footer">
-      <div>© <span id="year"></span> PiggyWink. Built on GitHub Pages.</div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">Back to top</a>
-        <a class="btn" href="mailto:mail@piggywink.com">Email</a>
-      </div>
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee" id="marquee">
+      <span>Whisper<span class="sep"></span></span>
+      <span>wav2vec2<span class="sep"></span></span>
+      <span>PyTorch<span class="sep"></span></span>
+      <span>HuggingFace<span class="sep"></span></span>
+      <span>CTC Decoding<span class="sep"></span></span>
+      <span>IPA Mapping<span class="sep"></span></span>
+      <span>fp16 Inference<span class="sep"></span></span>
+      <span>SoundFile I/O<span class="sep"></span></span>
+      <span>GPU Pipeline<span class="sep"></span></span>
+      <span>Clean Infra<span class="sep"></span></span>
+      <span>Whisper<span class="sep"></span></span>
+      <span>wav2vec2<span class="sep"></span></span>
+      <span>PyTorch<span class="sep"></span></span>
+      <span>HuggingFace<span class="sep"></span></span>
+      <span>CTC Decoding<span class="sep"></span></span>
+      <span>IPA Mapping<span class="sep"></span></span>
+      <span>fp16 Inference<span class="sep"></span></span>
+      <span>SoundFile I/O<span class="sep"></span></span>
+      <span>GPU Pipeline<span class="sep"></span></span>
+      <span>Clean Infra<span class="sep"></span></span>
     </div>
   </div>
 
+  <!-- PROJECTS -->
+  <section class="section" id="projects">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-label">01 — Projects</div>
+        <div class="section-title">Small, sharp things<br/>that ship.</div>
+      </div>
+
+      <div class="projects-grid reveal-stagger">
+        <div class="project-card">
+          <div class="project-num">01</div>
+          <div class="project-tags">
+            <span class="project-tag">Speech</span>
+            <span class="project-tag">Whisper</span>
+            <span class="project-tag">wav2vec2</span>
+          </div>
+          <h3>Children's ASR Stack</h3>
+          <p>Fine-tuned ASR with fast batching, robust audio I/O, and clean submission pipelines. Built for accuracy on non-standard speech.</p>
+          <div class="project-arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-num">02</div>
+          <div class="project-tags">
+            <span class="project-tag">Phonetics</span>
+            <span class="project-tag">IPA</span>
+          </div>
+          <h3>Phonetic Track Tooling</h3>
+          <p>CTC phoneme decoding + normalization into a strict competition IPA character set. Precise and reproducible.</p>
+          <div class="project-arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-num">03</div>
+          <div class="project-tags">
+            <span class="project-tag">Infra</span>
+            <span class="project-tag">GPU</span>
+          </div>
+          <h3>GPU Scripts That Behave</h3>
+          <p>Battle-tested inference scripts with sane logging, predictable outputs, and reproducible runs. No surprises.</p>
+          <div class="project-arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="section" id="stack">
+    <div class="orb orb-3"></div>
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-label">02 — Stack</div>
+        <div class="section-title">Simple, fast, and boring<br/>where it matters.</div>
+      </div>
+
+      <div class="stack-grid reveal-stagger">
+        <div class="stack-card">
+          <div class="stack-icon">⚡</div>
+          <h3>PyTorch + Transformers</h3>
+          <p>fp16/bf16 inference, sensible batching, optional compile, and "don't break in prod" defaults.</p>
+          <div class="stack-tags">
+            <span class="stack-tag-item">Python</span>
+            <span class="stack-tag-item">Runtime</span>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon">🎧</div>
+          <h3>SoundFile-first I/O</h3>
+          <p>Fast decode, safe mono-mix, and resampling fallback paths when the environment gets weird.</p>
+          <div class="stack-tags">
+            <span class="stack-tag-item">Audio</span>
+            <span class="stack-tag-item">Data</span>
+          </div>
+        </div>
+
+        <div class="stack-card">
+          <div class="stack-icon">◻</div>
+          <h3>Static + Clean</h3>
+          <p>Just HTML, CSS, JS. Loads instantly and still looks like you meant it. Zero dependencies.</p>
+          <div class="stack-tags">
+            <span class="stack-tag-item">Web</span>
+            <span class="stack-tag-item">Zero deps</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">03 — Contact</div>
+        <div class="contact-title">
+          Let's build<br/><span class="em" style="background:linear-gradient(90deg,var(--accent),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;">something.</span>
+        </div>
+        <p class="section-desc" style="text-align:center; margin: 20px auto 0;">I reply fastest to concrete problems + timelines.</p>
+        <a href="mailto:mail@piggywink.com" class="contact-email">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          mail@piggywink.com
+        </a>
+        <div class="contact-note">Or just say hi — that works too.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> PiggyWink</span>
+        <div class="footer-links">
+          <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">Back to top ↑</a>
+          <a href="mailto:mail@piggywink.com">Email</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    // UTC clock
-    const utcEl = document.getElementById("utcClock");
-    function pad(n){ return String(n).padStart(2,'0'); }
-    function tickUTC(){
+    // ─── CURSOR GLOW ───
+    const glow = document.getElementById('cursorGlow');
+    let mx = -1000, my = -1000, gx = -1000, gy = -1000;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animGlow() {
+      gx += (mx - gx) * .08;
+      gy += (my - gy) * .08;
+      glow.style.left = gx + 'px';
+      glow.style.top = gy + 'px';
+      requestAnimationFrame(animGlow);
+    }
+    animGlow();
+
+    // ─── NAV SCROLL ───
+    const nav = document.getElementById('nav');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          nav.classList.toggle('scrolled', window.scrollY > 40);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // ─── UTC CLOCK ───
+    const utcEl = document.getElementById('utcClock');
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tickUTC() {
       const d = new Date();
-      utcEl.textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+      utcEl.textContent = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
     }
     tickUTC(); setInterval(tickUTC, 1000);
 
-    // Footer year
-    document.getElementById("year").textContent = new Date().getFullYear();
+    // ─── UPTIME ───
+    const uptimeEl = document.getElementById('uptime');
+    const start = Date.now();
+    function tickUptime() {
+      const s = Math.floor((Date.now() - start) / 1000);
+      const h = pad(Math.floor(s / 3600));
+      const m = pad(Math.floor((s % 3600) / 60));
+      const sec = pad(s % 60);
+      uptimeEl.textContent = `${h}:${m}:${sec}`;
+    }
+    tickUptime(); setInterval(tickUptime, 1000);
 
-    // Terminal typing effect
-    const typedEl = document.getElementById("typed");
-    const lines = [
-      "status --all",
-      "gpu probe --safe",
-      "run asr_pipeline --fast",
-      "ship it"
-    ];
-    let li = 0, ci = 0, deleting = false;
+    // ─── YEAR ───
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    function typeLoop(){
+    // ─── TERMINAL TYPING ───
+    const typedEl = document.getElementById('typed');
+    const lines = ['status --all', 'gpu probe --safe', 'run asr_pipeline --fast', 'ship it'];
+    let li = 0, ci = 0, deleting = false, pauseCount = 0;
+    function typeLoop() {
       const current = lines[li];
-      if(!deleting){
-        typedEl.textContent = current.slice(0, ci++);
-        if(ci > current.length + 18){ deleting = true; }
+      if (!deleting) {
+        if (ci <= current.length) {
+          typedEl.textContent = current.slice(0, ci++);
+          setTimeout(typeLoop, 30 + Math.random() * 40);
+        } else {
+          pauseCount++;
+          if (pauseCount > 30) { deleting = true; pauseCount = 0; }
+          setTimeout(typeLoop, 50);
+        }
       } else {
-        typedEl.textContent = current.slice(0, ci--);
-        if(ci <= 0){
+        if (ci > 0) {
+          typedEl.textContent = current.slice(0, --ci);
+          setTimeout(typeLoop, 18);
+        } else {
           deleting = false;
           li = (li + 1) % lines.length;
-          ci = 0;
+          setTimeout(typeLoop, 300);
         }
       }
-      setTimeout(typeLoop, deleting ? 28 : 34);
     }
     typeLoop();
 
-    // Reveal on scroll
-    const reveals = document.querySelectorAll(".reveal");
-    const obs = new IntersectionObserver((entries)=>{
-      for(const e of entries){
-        if(e.isIntersecting) e.target.classList.add("on");
-      }
-    }, {threshold: 0.12});
-    reveals.forEach(r => obs.observe(r));
-
-    // If you ever want to toggle status from JS later:
-    // document.getElementById("statusText").textContent = "Online";
+    // ─── SCROLL REVEAL ───
+    const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => revealObs.observe(el));
   </script>
 </body>
 </html>
